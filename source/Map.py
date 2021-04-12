@@ -53,7 +53,7 @@ class Ttype(IntEnum):
 def init_tiles():
     global grass_tile_img
 
-    path =  os.path.join(os.path.dirname(__file__), '../Imported/')
+    path =  os.path.join(os.path.dirname(__file__), '../Imported/Sprites/Tiles/')
 
     grass_tile_img = pygame.image.load(path + "grass_tile32x32.png").convert()
     grass_tile_img.set_colorkey((0, 0, 0))
