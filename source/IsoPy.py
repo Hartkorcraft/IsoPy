@@ -13,6 +13,7 @@ RENDER_REZ_Y = 1000
 
 BACKGROUND_COLOR = (50,50,50)
 
+DEBUG = True
 DEBUG_MINIMAP = True
 DEBUG_MINIMAP_SIZE = 8
 
@@ -35,21 +36,24 @@ def main():
 
     #* Gizmos
     add_square_gizmo(0,1,10,10,1)
+    add_square_gizmo(3,0,5,10,0,Colors['red'])
 
-    add_circle_gizmo(0,0,5,1)
+    add_circle_gizmo(0,0,5,1,Colors['yellow'])
 
     #* Main loop
     while 1:
 
         #* Displaying
         display_map(surface)
-        if DEBUG_MINIMAP: display_debug_map(surface, DEBUG_MINIMAP_SIZE)
         
-        for gizmo in Gizmos:  
-            if isinstance(gizmo.shape, pygame.Rect):
-                pygame.draw.rect(surface, gizmo.color, gizmo.shape,gizmo.border)
-            elif isinstance(gizmo.shape,Utils.Circle):
-                pygame.draw.circle(surface,gizmo.color,(gizmo.shape.pos_x,gizmo.shape.pos_y),gizmo.shape.radius,gizmo.border)
+        if DEBUG:
+            if DEBUG_MINIMAP: display_debug_map(surface, DEBUG_MINIMAP_SIZE)
+            
+            for gizmo in Gizmos:  
+                if isinstance(gizmo.shape, pygame.Rect):
+                    pygame.draw.rect(surface, gizmo.color, gizmo.shape,gizmo.border)
+                elif isinstance(gizmo.shape,Utils.Circle):
+                    pygame.draw.circle(surface,gizmo.color,(gizmo.shape.pos_x,gizmo.shape.pos_y),gizmo.shape.radius,gizmo.border)
 
         #* Events
         for event in pygame.event.get():
