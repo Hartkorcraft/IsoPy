@@ -2,6 +2,7 @@ import pygame
 import sys
 import os.path
 import Utils
+from Utils import Colors
 from dataclasses import dataclass
 from enum import IntEnum
 
@@ -19,10 +20,6 @@ DEBUG_MINIMAP = False
 #Palety https://lospec.com/palette-list/vocodes-62
 #       https://lospec.com/palette-list/battery24
 
-WHITE = (255,255,255)
-GREEN = (181, 242,107)
-YELLOW = (232,203,88)
-GRAY = (136,136,136)
 
 #* Global Vars 
 gameMap = []
@@ -39,10 +36,17 @@ sand_tile_img = 0
 # * Tiles
 @dataclass
 class Tile:
-    def __init__(self, id, image, debug_color = (255,255,255)):
+    def __init__(self, id, image, debug_color = Colors['white']):
         self.id = id
         self.image = image
         self.debug_color = debug_color
+
+@dataclass
+class Gizmo:
+    def __init__(self, shape, color = Colors['white'], border = 0):
+        self.shape = shape
+        self.color = color
+        self.border = border
 
 class Ttype(IntEnum):
     EMPTY = -1
@@ -68,10 +72,10 @@ def init_tiles():
 
     global Tiles
     Tiles = {
-        Ttype.EMPTY: Tile(Ttype.EMPTY, 0, WHITE),
-        Ttype.GRASS: Tile(Ttype.GRASS, grass_tile_img, GREEN),
-        Ttype.ROCK: Tile(Ttype.ROCK, rock_tile_img, GRAY),
-        Ttype.SAND: Tile(Ttype.SAND, sand_tile_img, YELLOW),
+        Ttype.EMPTY: Tile(Ttype.EMPTY, 0, Colors["white"]),
+        Ttype.GRASS: Tile(Ttype.GRASS, grass_tile_img, Colors["green"]),
+        Ttype.ROCK: Tile(Ttype.ROCK, rock_tile_img, Colors["gray"]),
+        Ttype.SAND: Tile(Ttype.SAND, sand_tile_img, Colors["yellow"]),
     }
 
 def set_map_offset(x,y):
@@ -128,10 +132,17 @@ def display_debug_map(surface,size):
             if tile.id != Ttype.EMPTY:
                     pygame.draw.rect(surface, tile.debug_color , pygame.Rect( 10 + x * size, 10 + y * size, size, size), 1)
 
-def add_square_gizmo(pos_x,pos_y,size_x = 10,size_y = 10):
-  
+def add_square_gizmo(pos_x,pos_y,size_x=10,size_y=10,border=0,color = Colors['white']):
     rect_pos = Utils.car_to_iso(pos_x,pos_y)
     rect_size = (size_x,size_y)
     rect = pygame.Rect(TILE_OFFSET_X - rect_size[0]/2 + MAP_OFFSET_X + rect_pos[0]* TILE_OFFSET_X , MAP_OFFSET_Y + rect_pos[1]* TILE_OFFSET_Y , rect_size[0],rect_size[1])
+    gizmo = Gizmo(rect,color,border)
+    Gizmos.append(gizmo)
 
-    Gizmos.append(rect)
+def add_circle_gizmo(pos_x,pos_y,radius = 5,border=0,color = Colors['white']):
+    circle_pos = Utils.car_to_iso(pos_x,pos_y)
+    circle = Utils.Circle(TILE_OFFSET_X + MAP_OFFSET_X + circle_pos[0] * TILE_OFFSET_X,radius + MAP_OFFSET_Y + circle_pos[1] * TILE_OFFSET_Y , radius)
+    gizmo = Gizmo(circle,color,border)
+    Gizmos.append(gizmo)
+    
+

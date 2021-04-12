@@ -1,6 +1,7 @@
 import pygame
 import sys
 import Utils
+from Utils import Colors
 from Map import *
 
 #* Global settings 
@@ -33,10 +34,9 @@ def main():
     set_map_offset(REZ_X/2,REZ_Y/4)
 
     #* Gizmos
-    add_square_gizmo(0,0)
-    add_square_gizmo(0,1)
-    add_square_gizmo(1,0)
-    add_square_gizmo(1,1)
+    add_square_gizmo(0,1,10,10,1)
+
+    add_circle_gizmo(0,0,5,1)
 
     #* Main loop
     while 1:
@@ -46,7 +46,10 @@ def main():
         if DEBUG_MINIMAP: display_debug_map(surface, DEBUG_MINIMAP_SIZE)
         
         for gizmo in Gizmos:  
-            pygame.draw.rect(surface,WHITE, gizmo,1)
+            if isinstance(gizmo.shape, pygame.Rect):
+                pygame.draw.rect(surface, gizmo.color, gizmo.shape,gizmo.border)
+            elif isinstance(gizmo.shape,Utils.Circle):
+                pygame.draw.circle(surface,gizmo.color,(gizmo.shape.pos_x,gizmo.shape.pos_y),gizmo.shape.radius,gizmo.border)
 
         #* Events
         for event in pygame.event.get():
