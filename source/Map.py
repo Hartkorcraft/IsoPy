@@ -1,5 +1,6 @@
 import pygame
 import sys
+import os.path
 import Utils
 from dataclasses import dataclass
 from enum import IntEnum
@@ -51,15 +52,18 @@ class Ttype(IntEnum):
 
 def init_tiles():
     global grass_tile_img
-    grass_tile_img = pygame.image.load("grass_tile32x32.png").convert()
+
+    path =  os.path.join(os.path.dirname(__file__), '../Imported/')
+
+    grass_tile_img = pygame.image.load(path + "grass_tile32x32.png").convert()
     grass_tile_img.set_colorkey((0, 0, 0))
 
     global rock_tile_img
-    rock_tile_img = pygame.image.load("rock_tile32x32.png").convert()
+    rock_tile_img = pygame.image.load(path + "rock_tile32x32.png").convert()
     rock_tile_img.set_colorkey((0, 0, 0))
 
     global sand_tile_img
-    sand_tile_img = pygame.image.load("sand_tile32x32.png").convert()
+    sand_tile_img = pygame.image.load(path + "sand_tile32x32.png").convert()
     sand_tile_img.set_colorkey((0, 0, 0))
 
     global Tiles
