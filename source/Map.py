@@ -2,6 +2,7 @@ import pygame
 import sys
 import os.path
 import Utils
+#import random
 from Utils import Colors
 from dataclasses import dataclass
 from enum import IntEnum
@@ -9,11 +10,13 @@ from enum import IntEnum
 MAP_SIZE_X = 100
 MAP_SIZE_Y = 100
 
-MAP_OFFSET_X = 0
-MAP_OFFSET_Y = 0
-
 TILE_OFFSET_X = 16
 TILE_OFFSET_Y = 8
+
+TILE_SIZE_X = 32
+TILE_SIZE_Y = 32
+
+Z_OFFSET = 13
 
 DEBUG_MINIMAP = False
 
@@ -30,6 +33,9 @@ Gizmos = []
 grass_tile_img = 0
 rock_tile_img = 0
 sand_tile_img = 0
+
+map_offset_x = 0
+map_offset_y = 0
 
 #* Helpers
 
@@ -78,12 +84,15 @@ def init_tiles():
         Ttype.SAND: Tile(Ttype.SAND, sand_tile_img, Colors["yellow"]),
     }
 
-def set_map_offset(x,y):
-    global MAP_OFFSET_X
-    global MAP_OFFSET_Y
-    MAP_OFFSET_X = x
-    MAP_OFFSET_Y = y
-    
+def Set_map_offset(x,y):
+    global map_offset_x, map_offset_y
+    map_offset_x = x
+    map_offset_y = y
+
+def Map_offset_x(): return map_offset_x
+def Map_offset_y(): return map_offset_y
+
+#TODO Do z_levels
 def init_map(surface):
 
     # * Map data
@@ -123,25 +132,58 @@ def display_map(surface):
             pos = Utils.car_to_iso(x,y)
             if tile.id != Ttype.EMPTY:
                 if tile.image:
-                    surface.blit(tile.image, (MAP_OFFSET_X + pos[0]* TILE_OFFSET_X, MAP_OFFSET_Y + pos[1]* TILE_OFFSET_Y))
+                    surface.blit(tile.image, (map_offset_x + pos[0]* TILE_OFFSET_X, map_offset_y + (pos[1]* TILE_OFFSET_Y)))
+                    
 
 def display_debug_map(surface,size):
-
     for y, row in enumerate(gameMap):
         for x, tile in enumerate(row):
             if tile.id != Ttype.EMPTY:
                     pygame.draw.rect(surface, tile.debug_color , pygame.Rect( 10 + x * size, 10 + y * size, size, size), 1)
 
-def add_square_gizmo(pos_x,pos_y,size_x=10,size_y=10,border=0,color = Colors['white']):
+def display_gizmos(surface):
+    for gizmo in Gizmos:  
+        if isinstance(gizmo.shape, pygame.Rect):
+            pygame.draw.rect(surface, gizmo.color, gizmo.shape,gizmo.border)
+        elif isinstance(gizmo.shape,Utils.Circle):
+            pygame.draw.circle(surface,gizmo.color,(gizmo.shape.pos_x,gizmo.shape.pos_y),gizmo.shape.radius,gizmo.border)
+
+def add_square_gizmo(pos_x,pos_y,size_x=10,size_y=10,border=0,color = Colors['white'], centered = True, offseting = True):
     rect_pos = Utils.car_to_iso(pos_x,pos_y)
     rect_size = (size_x,size_y)
-    rect = pygame.Rect(TILE_OFFSET_X - rect_size[0]/2 + MAP_OFFSET_X + rect_pos[0]* TILE_OFFSET_X , MAP_OFFSET_Y + rect_pos[1]* TILE_OFFSET_Y , rect_size[0],rect_size[1])
-    gizmo = Gizmo(rect,color,border)
-    Gizmos.append(gizmo)
+    tile_offset = [0,0]
+    #global map_offset_x, map_offset_y
 
-def add_circle_gizmo(pos_x,pos_y,radius = 5,border=0,color = Colors['white']):
+    center_offset = [
+        -rect_size[0]/2, # offset x
+        -rect_size[1]]   # offset y
+
+    if centered:
+        center_offset[0] = -rect_size[0]/2 # offset x
+        center_offset[1] = -rect_size[1]/2 # offset y
+    if offseting:
+        tile_offset[0]  = TILE_OFFSET_X + center_offset[0] # offset x
+        tile_offset[1] =  TILE_OFFSET_Y + center_offset[1] # offset y
+
+    rect = pygame.Rect(
+         map_offset_x + rect_pos[0]* TILE_OFFSET_X + tile_offset[0],
+         map_offset_y + rect_pos[1]* TILE_OFFSET_Y + tile_offset[1], 
+        rect_size[0],
+        rect_size[1])
+    gizmo = Gizmo(rect,color,border)
+    Gizmos.append(gizmo) 
+
+def add_circle_gizmo(pos_x,pos_y,radius = 5,border=0,color = Colors['white'], centered = False):
     circle_pos = Utils.car_to_iso(pos_x,pos_y)
-    circle = Utils.Circle(TILE_OFFSET_X + MAP_OFFSET_X + circle_pos[0] * TILE_OFFSET_X,radius + MAP_OFFSET_Y + circle_pos[1] * TILE_OFFSET_Y , radius)
+    center_offset = 0
+    #global map_offset_x, map_offset_y
+
+    if centered:
+        center_offset = -radius
+    circle = Utils.Circle(
+        map_offset_x + TILE_OFFSET_X + (circle_pos[0] * TILE_OFFSET_X),
+        map_offset_y + TILE_OFFSET_Y + (circle_pos[1] * TILE_OFFSET_Y) + center_offset,
+        radius)
     gizmo = Gizmo(circle,color,border)
     Gizmos.append(gizmo)
     

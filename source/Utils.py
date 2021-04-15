@@ -12,6 +12,9 @@ Colors = {
 def car_to_iso(x,y):
     return [(x - y),(x + y)]
 
+def iso_to_car(x,y):
+    return[(x + y),(y - x)]
+
 @dataclass
 class Circle:
     def __init__(self, pos_x, pos_y,radius):
